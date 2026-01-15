@@ -1,7 +1,6 @@
 <h1>Mecânica Clássica de Newton e a Integração de Euler</h1>
 <br>
 <h2><bold>1. A Gravidade é uma Aceleração(g), não uma Velocidade</bold></h2>
-<br>
 <p>Este é o erro mais comum. A gravidade não diz "mova-se a 10km/h". Ela diz "aumente sua velocidade em 10km/h a cada segundo".</p>
 <br>
 <ul>
@@ -14,7 +13,6 @@
 <br><br>
 
 <h2><bold>2. O ciclo de Movimento (A cada Frame)</bold></h2>
-<br>
 
 <p>Para a bola cair de forma realista, você precisa seguir esta sequência lógica dentro de um loop de animação:</p>
 <br>
@@ -26,10 +24,9 @@
 <p>2. <bold>Atualizar a Posição:</bold>Você soma essa velocidade a posição Y da bola.</bold></p>
 <br>
 <i>Y_final = Y_inicial + V_final</i>
-<br><br><br>
+<br><br>
 
 <h2><bold>3. O conceito de Resistência e Colisão</bold></bold></h2>
-<br>
 <p>Sem uma interrupção, a bola aceleraria infinitamente e atravessaria o chão. Para o simulador, você precisa considerar:</p>
 <br>
 <ul>
@@ -39,7 +36,6 @@
 <br><br>
 
 <h2><bold>4. O fator "Tempo" (Frame Rate)</bold></bold></h2>
-<br>
 <p>
 Em um código estático, você desenha uma vez. Em um simulador, você precisa de um <bold>Loop de Animação</bold> (geralmente <code>requestAnimationFrame</code>). A gravidade só "funciona" se houver uma sucessão de cálculos rápidos (geralmente 60 vezes por segundo) que criam a ilusão de movimento fluido.
 </p>

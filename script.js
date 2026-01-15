@@ -44,6 +44,67 @@ class Button {
   }
 }
 
+class Message {
+  constructor(
+    pos_x,
+    pos_y,
+    width,
+    height,
+    text,
+    value,
+    color,
+    choose_background
+  ) {
+    this.pos_x = pos_x;
+    this.pos_y = pos_y;
+    this.width = width;
+    this.height = height;
+    this.text = text;
+    this.value = value;
+    this.color = color;
+    this.choose_background = choose_background;
+  }
+
+  draw(ctx) {
+    ctx.beginPath();
+    this.setBackground(this.choose_background);
+    ctx.fillStyle = this.color;
+    ctx.font = "15px monospace";
+    ctx.strokeRect(this.pos_x, this.pos_y, this.width * 1.2, this.height);
+    ctx.fillText(this.text, this.pos_x + 6, this.pos_y * 1.75, this.width - 2); // Arrumar com base no tamanho da fonte e a posição x
+    ctx.fillText(
+      this.value,
+      this.pos_x + this.width,
+      this.pos_y * 1.75,
+      this.width - 2
+    );
+    ctx.stroke();
+    ctx.closePath();
+  }
+
+  setBackground(background) {
+    if (background) {
+      ctx.strokeStyle = this.color;
+    } else {
+      ctx.fillStroke = "";
+    }
+  }
+
+  changeMessage(message, color) {
+    this.text = message;
+    this.color = color;
+    console.log("message: " + message);
+    this.draw(ctx);
+  }
+  changeValue(value, color) {
+    this.value = value;
+    this.color = color;
+    console.log("value: " + this.value);
+    this.draw(ctx);
+  }
+  getFallTime() {}
+}
+
 class Ball {
   constructor(xpos, ypos, radius, velocity, color) {
     this.xpos = xpos;
@@ -107,9 +168,20 @@ let button = new Button(
   "#000",
   "Start"
 );
+let fall_time = new Message(
+  canvas.width - 300,
+  40,
+  100,
+  50,
+  "Fall time: ",
+  0,
+  "#fff",
+  true
+);
 let ball = new Ball(canvas.width / 2, 100, 30, 2, "#fff");
 floor.draw(ctx);
 button.draw(ctx);
+fall_time.draw(ctx);
 ball.draw(ctx);
 
 canvas.addEventListener("click", (Event) => {
@@ -123,6 +195,7 @@ function startLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa a tela
   floor.draw(ctx); // Desenha o Chão
   button.draw(ctx); // Desenha o Botão
+  fall_time.changeValue(10, "#fff");
   ball.draw(ctx); // Desenha a Bola
   ball.update(floor); // Atualiza a Bola
   requestAnimationFrame(startLoop); // Reinicia a função em 60 FPS (Frames por Segundo)

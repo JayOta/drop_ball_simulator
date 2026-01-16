@@ -15,6 +15,7 @@ class Button {
     this.background_color = background_color;
     this.text_color = text_color;
     this.text = text;
+    this.isRunning = false;
   }
   draw(ctx) {
     ctx.beginPath();
@@ -32,12 +33,13 @@ class Button {
   }
 
   clickButton(xmouse, ymouse) {
-    let distance = Math.sqrt(
-      (xmouse - this.xpos) * (xmouse - this.xpos) +
-        (ymouse - this.ypos) * (ymouse - this.ypos)
-    ); // Atualizar função para pegar melhor o clique no Retângulo
-
-    if (distance <= this.width * this.height) {
+    if (
+      xmouse > this.xpos &&
+      xmouse < this.xpos + this.width &&
+      ymouse > this.ypos &&
+      ymouse < this.ypos + this.height &&
+      !this.isRunning
+    ) {
       // Se a distância menor ou igual a do Botão
       startLoop(); // Começamos a simulação
     }
@@ -68,17 +70,22 @@ class Message {
   draw(ctx) {
     ctx.beginPath();
     this.setBackground(this.choose_background);
-    ctx.fillStyle = this.color;
-    ctx.font = "15px monospace";
-    ctx.strokeRect(this.pos_x, this.pos_y, this.width * 1.2, this.height);
-    ctx.fillText(this.text, this.pos_x + 6, this.pos_y * 1.75, this.width - 2); // Arrumar com base no tamanho da fonte e a posição x
+    ctx.fillStyle = this.color; // cor dos textos
+    ctx.font = "14px monospace"; // tipo e tamanho da fonte
+    ctx.strokeRect(this.pos_x, this.pos_y, this.width * 1.2, this.height); // posição e tamanho da borda
+    ctx.fillText(
+      this.text,
+      this.pos_x + 5, // posição x + 5
+      this.pos_y + this.height / 2 + 5, // posição do meio do botão + 5
+      this.width - 2 // largura - 2
+    ); // desenha o texto
     ctx.fillText(
       this.value,
-      this.pos_x + this.width,
-      this.pos_y * 1.75,
-      this.width - 2
-    );
-    ctx.stroke();
+      this.pos_x + this.width - 15, // posição x + largura do botão - 15
+      this.pos_y + this.height / 2 + 5, // posição do meio do botão + 5
+      this.width - 2 // largura - 5
+    ); // desenha o texto
+    ctx.stroke(); // desenha a borda
     ctx.closePath();
   }
 
@@ -102,7 +109,6 @@ class Message {
     console.log("value: " + this.value);
     this.draw(ctx);
   }
-  getFallTime() {}
 }
 
 class Ball {
@@ -112,6 +118,7 @@ class Ball {
     this.radius = radius;
     this.velocity = velocity;
     this.color = color;
+    this.fallTimer = 0;
     this.gravity = 0.5;
   }
   draw(ctx) {
@@ -127,6 +134,7 @@ class Ball {
       this.velocity = 0; // para a bola (zeramos a velocidade)
       this.ypos = floor.ypos - this.radius; // e voltamos a posição da bola de forma que ela encoste no chão -> (altura do chão - raio da bola)
     } else {
+      this.fallTimer += 1 / 60; // controla o tempo em que a bola está descendo
       this.velocity += this.gravity; // caso contrário a bola continua caindo (velocidade continua aumentando)
     }
   }
@@ -168,20 +176,20 @@ let button = new Button(
   "#000",
   "Start"
 );
-let fall_time = new Message(
+let ball = new Ball(canvas.width / 2, 100, 30, 2, "#fff");
+let fall_time_msg = new Message(
   canvas.width - 300,
   40,
   100,
   50,
   "Fall time: ",
-  0,
+  ball.fallTimer,
   "#fff",
   true
 );
-let ball = new Ball(canvas.width / 2, 100, 30, 2, "#fff");
 floor.draw(ctx);
 button.draw(ctx);
-fall_time.draw(ctx);
+fall_time_msg.draw(ctx);
 ball.draw(ctx);
 
 canvas.addEventListener("click", (Event) => {
@@ -192,11 +200,13 @@ canvas.addEventListener("click", (Event) => {
 });
 
 function startLoop() {
+  button.isRunning = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa a tela
   floor.draw(ctx); // Desenha o Chão
   button.draw(ctx); // Desenha o Botão
-  fall_time.changeValue(10, "#fff");
   ball.draw(ctx); // Desenha a Bola
+  fall_time_msg.changeValue(ball.fallTimer.toFixed(2), "#fff");
+  console.log("ball.ypos: " + ball.ypos + "\n" + "floor.ypos: " + floor.ypos);
   ball.update(floor); // Atualiza a Bola
   requestAnimationFrame(startLoop); // Reinicia a função em 60 FPS (Frames por Segundo)
 }

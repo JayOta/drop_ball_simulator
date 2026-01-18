@@ -30,7 +30,7 @@ class Button {
       this.text,
       this.xpos + this.width / 2,
       this.ypos + this.height / 2,
-      this.width
+      this.width,
     );
     ctx.closePath();
   }
@@ -64,6 +64,32 @@ class Button {
       this.rise(ball, floor); // Começamos a simulação
     }
   }
+  subtractVelocity(xmouse, ymouse, ball) {
+    if (
+      xmouse > this.xpos &&
+      xmouse < this.xpos + this.width &&
+      ymouse > this.ypos &&
+      ymouse < this.ypos + this.height &&
+      !this.isRunning
+    ) {
+      // Se a distância menor ou igual a do Botão
+      ball.velocity -= 1;
+      console.log("Subrtracted. velocity: " + ball.velocity);
+    }
+  }
+  addVelocity(xmouse, ymouse, ball) {
+    if (
+      xmouse > this.xpos &&
+      xmouse < this.xpos + this.width &&
+      ymouse > this.ypos &&
+      ymouse < this.ypos + this.height &&
+      !this.isRunning
+    ) {
+      // Se a distância menor ou igual a do Botão
+      ball.velocity += 1;
+      console.log("Added. velocity: " + ball.velocity);
+    }
+  }
 
   rise(ball) {
     if (ball.ypos >= ball.initialYpos) {
@@ -83,7 +109,8 @@ class Message {
     text,
     value,
     color,
-    choose_background
+    borderColor,
+    choose_background,
   ) {
     this.pos_x = pos_x;
     this.pos_y = pos_y;
@@ -92,6 +119,7 @@ class Message {
     this.text = text;
     this.value = value;
     this.color = color;
+    this.borderColor = borderColor;
     this.choose_background = choose_background;
   }
 
@@ -99,6 +127,7 @@ class Message {
     ctx.beginPath();
     this.setBackground(this.choose_background);
     ctx.fillStyle = this.color; // cor dos textos
+    ctx.strokeStyle = this.borderColor;
     ctx.font = "14px monospace"; // tipo e tamanho da fonte
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -107,13 +136,13 @@ class Message {
       this.text,
       this.pos_x + this.width / 2, // posição x + 5
       this.pos_y + this.height / 2, // posição do meio do botão + 5
-      this.width - 2 // largura - 2
+      this.width - 2, // largura - 2
     ); // desenha o texto
     ctx.fillText(
       this.value,
       this.pos_x + this.width + 2, // posição x + largura do botão - 15
       this.pos_y + this.height / 2, // posição do meio do botão + 5
-      this.width - 2 // largura - 5
+      this.width - 2, // largura - 5
     ); // desenha o texto
     ctx.stroke(); // desenha a borda
     ctx.closePath();
@@ -165,9 +194,9 @@ class Ball {
       // Se a bola estiver dentro ou ultrapassar o chão e estiver descendo ->
       this.velocity = 0; // para a bola (zeramos a velocidade)
       this.ypos = floor.ypos - this.radius; // e voltamos a posição da bola de forma que ela encoste no chão -> (altura do chão - raio da bola)
-      this.fallTimer = 0; // fallTimer reinicia
     } else if (this.ypos > this.initialYpos && this.velocity < 0) {
       // Se a bola estiver subindo (reiniciando)
+      this.fallTimer = 0;
       console.log("Restarting"); // Imprime mensagem
     } else if (this.ypos <= this.initialYpos && this.velocity < 0) {
       // Se a posição para reinício fora verdadeira
@@ -217,7 +246,7 @@ let start_btn = new Button(
   50,
   "#fff",
   "#000",
-  "Start"
+  "Start",
 );
 let restart_btn = new Button(
   canvas.width - 430,
@@ -226,9 +255,9 @@ let restart_btn = new Button(
   50,
   "#fff",
   "#000",
-  "Restart"
+  "Restart",
 );
-let ball = new Ball(canvas.width / 2, 100, 30, 2, "#fff");
+let ball = new Ball(canvas.width / 2, 100, 20, 2, "#fff");
 let fall_time_msg = new Message(
   canvas.width - 300,
   40,
@@ -237,7 +266,8 @@ let fall_time_msg = new Message(
   "Fall time: ",
   ball.fallTimer,
   "#fff",
-  true
+  "#fff",
+  true,
 );
 let currentVelocity = new Message(
   canvas.width / 2 - 55,
@@ -247,14 +277,49 @@ let currentVelocity = new Message(
   "curr_velocity: ",
   ball.velocity,
   "#fff",
-  false
+  "#fff",
+  false,
 );
-floor.draw(ctx);
-start_btn.draw(ctx);
-restart_btn.draw(ctx);
-fall_time_msg.draw(ctx);
-ball.draw(ctx);
-currentVelocity.draw(ctx);
+let subtractVelocityBtn = new Button(
+  canvas.width / 2 - 120,
+  20,
+  50,
+  20,
+  "#fff",
+  "#000",
+  "-",
+);
+let addVelocityBtn = new Button(
+  canvas.width / 2 + 80,
+  20,
+  50,
+  20,
+  "#fff",
+  "#000",
+  "+",
+);
+// floor.draw(ctx);
+// start_btn.draw(ctx);
+// restart_btn.draw(ctx);
+// fall_time_msg.draw(ctx);
+// ball.draw(ctx);
+// currentVelocity.draw(ctx);
+// subtractVelocityBtn.draw(ctx);
+// addVelocityBtn.draw(ctx);
+
+let elements = [
+  floor,
+  start_btn,
+  restart_btn,
+  fall_time_msg,
+  ball,
+  currentVelocity,
+  subtractVelocityBtn,
+  addVelocityBtn,
+];
+for (let i = 0; i < elements.length; i++) {
+  elements[i].draw(ctx); // Desenha os elementos do array
+}
 
 canvas.addEventListener("click", (Event) => {
   const rect = canvas.getBoundingClientRect();
@@ -268,15 +333,34 @@ canvas.addEventListener("click", (Event) => {
   const y = Event.clientY - rect.top; // Pega a posição Y do cliente ao clicar
   restart_btn.clickRestartButton(x, y, ball, floor); // Utilizamos a função com essas posições
 });
+canvas.addEventListener("click", (Event) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = Event.clientX - rect.left; // Pega a posição X do cliente ao clicar
+  const y = Event.clientY - rect.top; // Pega a posição Y do cliente ao clicar
+  subtractVelocityBtn.subtractVelocity(x, y, ball); // Utilizamos a função com essas posições
+});
+canvas.addEventListener("click", (Event) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = Event.clientX - rect.left; // Pega a posição X do cliente ao clicar
+  const y = Event.clientY - rect.top; // Pega a posição Y do cliente ao clicar
+  addVelocityBtn.addVelocity(x, y, ball); // Utilizamos a função com essas posições
+});
 
 function startLoop() {
+  elements = [
+    floor,
+    start_btn,
+    restart_btn,
+    ball,
+    currentVelocity, // Retirar
+    subtractVelocityBtn,
+    addVelocityBtn,
+  ];
   start_btn.isRunning = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa a tela
-  floor.draw(ctx); // Desenha o Chão
-  start_btn.draw(ctx); // Desenha o Botão
-  restart_btn.draw(ctx);
-  ball.draw(ctx); // Desenha a Bola
-  currentVelocity.draw(ctx);
+  for (let i = 0; i < elements.length; i++) {
+    elements[i].draw(ctx); // Desenha os elementos do array
+  }
   fall_time_msg.changeValue(ball.fallTimer.toFixed(2), "#fff");
   ball.update(floor); // Atualiza a Bola
   requestAnimationFrame(startLoop); // Reinicia a função em 60 FPS (Frames por Segundo)

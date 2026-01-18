@@ -298,14 +298,6 @@ let addVelocityBtn = new Button(
   "#000",
   "+",
 );
-// floor.draw(ctx);
-// start_btn.draw(ctx);
-// restart_btn.draw(ctx);
-// fall_time_msg.draw(ctx);
-// ball.draw(ctx);
-// currentVelocity.draw(ctx);
-// subtractVelocityBtn.draw(ctx);
-// addVelocityBtn.draw(ctx);
 
 let elements = [
   floor,
